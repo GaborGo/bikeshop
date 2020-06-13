@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:content="http://www.w3.org/1999/xhtml">
+<head
+        th:insert="fragments.html :: headerfiles">
+</head>
+<body>
+<header th:insert="fragments.html :: nav"></header>
+
+<div class="container">
+    <div class="jumbotron" th:object="${item}">
+        <h1 th:text="${item.name}">Item name</h1>
+        <hr>
+        <h4 th:text="'Brand: ' + ${item.brand}">Brand</h4>
+        <h4 th:text="'Category: ' + ${item.category}">Category</h4>
+        <hr>
+        <div class="row mx-md-n5 align-items-center">
+            <div th:unless="${item.images.isEmpty()}" th:each="image : ${item.imagesPaths()}" style="width: 100%; max-width: 300px; height: 100%; max-height: 300px; margin: 4px">
+                <div class="col px-md-5">
+                    <a th:onclick="|viewFunction(${image.hashCode()})|" style="cursor: pointer" >
+                        <img class="img-thumbnail" th:src="${image}" alt="item" src="images/profile.png">
+                    </a>
+                </div>
+                <div class="modal fade" role="dialog" th:id="${image.hashCode()}"  th:onclick="|closeFunction(${image.hashCode()})|" style="display: none; opacity: 100%; padding-top: 10%">
+                    <div class="modal-dialog modal-lg modal-dialog-centered" tabindex="-1" aria-hidden="false">
+                        <div class="modal-content" style="position: absolute; width: auto">
+                            <span class="close" th:onclick="|closeFunction(${image.hashCode()})|"  onclick="">&times;</span>
+                            <div class="modal-body">
+                                <img th:src="${image}" style="height:100%;max-height:400px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${item.images.isEmpty()}">
+            <div class="col px-md-5">
+                <a target="_blank" href="../images/profile.png">
+                    <img class="img-thumbnail" alt="item" src="/images/profile.png" style="width: 20%; height: 20%;">
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm">
+                <a href="#" th:href="@{'../item/addToCart/'+${item.id}}" class="btn btn-outline-secondary"><i class="fas fa-shopping-cart" style="align-content: center"></i> Add to cart </a>
+            </div>
+            <div class="col-sm-3">
+                <h3><i class="fas fa-euro-sign"></i> <span th:text="${item.getPrice()}">Price</span></h3>
+            </div>
+        </div>
+        <hr>
+        <p id="descr" class="lead" th:text="${item.description}" style="white-space: nowrap; width: 100%; overflow: hidden; text-overflow: ellipsis;">Description</p>
+        <button id="btn" class="btn-sm btn-outline-secondary" onclick="expandDescription()">
+            <i class="fas fa-arrow-alt-circle-down"></i> More
+        </button>
+        <br>
+        <hr>
+        <br>
+        <h3>You might also like...</h3>
+        <div class="row mx-md-n5">
+            <div class="card" style="width: 18rem; margin: 22px;" th:each="item : ${items}">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal" th:text="${item.name}">Pro</h4>
+                </div>
+                <div th:unless="${item.getImages().isEmpty()}">
+                    <a th:id="'a'+${item.id}" th:onclick="|viewFunction(${item.id})|" style="cursor: pointer">
+                        <img th:src="${item.getImages().get(0).getDecodedImgPath()}" src="images/profile.png" class="card-img-top"  style="width: 100%; height: 15vw; object-fit: cover;">
+                    </a>
+                </div>
+                <div th:if="${item.getImages().isEmpty()}">
+                    <img th:src="@{images/profile.png}" src="images/profile.png" alt="Item_Image" style=" width: 100%; height: 15vw;object-fit: cover;">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${item.brand}">Card title</h5>
+                    <p class="card-text" th:text="${item.category}"></p>
+                </div>
+                <div class="card-footer">
+                    <a href="#" th:href="@{'../item/'+${item.id}}" class="btn btn-outline-dark">Details</a>
+                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Add to cart">
+                        <a class="btn btn-outline-dark" href="#" th:href="@{'../item/addToCart/'+${item.id}}" style="pointer-events: visibleStroke;" type="button">
+                            <i class="fas fa-shopping-cart"></i>
+                        </a>
+                    </span>
+                </div>
+                <div class="modal fade" role="dialog" th:id="${item.id}"  th:onclick="|closeFunction(${item.id})|" style="display: none; opacity: 100%; padding-top: 10%" >
+                    <div class="modal-dialog modal-lg modal-dialog-centered" tabindex="-1" aria-hidden="true">
+                        <div class="modal-content" style="position: absolute; width: auto">
+                            <span class="close" th:onclick="|closeFunction(${item.id})|"  onclick="">&times;</span>
+                            <div class="modal-body">
+                                <div th:if="${item.images.isEmpty()}">
+                                    <img src="images/profile.png">
+                                </div>
+                                <div th:unless="${item.images.isEmpty()}">
+                                    <img th:src="${item.images.get(0).getDecodedImgPath()}" style="height:100%;max-height:400px">
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div th:insert="fragments :: footer"/>
+
+<script>
+    function closeFunction(id) {
+        let modal = document.getElementById(id);
+        if( modal.style.display === "block")
+            modal.style.display = "none";
+    }
+
+    function viewFunction(id) {
+        let modal = document.getElementById(id);
+        if ( modal.style.display==="none" )
+            modal.style.display = "block";
+    }
+
+    function expandDescription(){
+        let btn = document.getElementById("btn");
+        let description = document.getElementById("descr");
+
+        if(description.style.whiteSpace === "nowrap") {
+            description.style.whiteSpace = "inherit";
+            btn.innerHTML = "<i class=\"fas fa-arrow-alt-circle-up\"></i> Less";
+        }
+        else{
+            description.style.whiteSpace = "nowrap";
+            btn.innerHTML = "<i class=\"fas fa-arrow-alt-circle-down\"></i> More";
+        }
+    }
+</script>
+
+</body>
+</html>

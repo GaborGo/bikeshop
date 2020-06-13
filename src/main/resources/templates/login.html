@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head
+        th:insert="fragments.html :: headerfiles">
+    <![endif]-->
+</head>
+<body>
+<header th:insert="fragments.html :: nav"></header>
+<br><br>
+    <div class="container">
+         <div th:unless="${newUser}">
+              <div th:if="${userInfo}" class="alert-secondary alert" role="alert">
+              <h3 th:text="${userInfo}"></h3>
+              </div>
+              <div class="row" >
+                   <div class="col-sm-9 col-md-7 col-lg-5 mx-auto" >
+                       <div class="card card-signin my-5">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">Sign In</h5>
+                                <form class="form-signin" name="f" th:action="@{/login}" method="post">
+                                    <div th:if="${param.error}" class="alert alert-danger"> Invalid Username or Password.
+                                    </div>
+                                    <div th:if="${param.logout}" class="alert alert-success"> You have been logged out
+                                    </div>
+                                    <div class="form-label-group">
+                                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" required="true" >
+                                        <hr class="my-4">
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required="true" />
+                                        <hr class="my-4">
+                                    </div>
+                                    <div class="custom-control custom-checkbox mb-3">
+                                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                        <label class="custom-control-label" for="customCheck1">Remember password</label>
+                                    </div>
+                                    <button class="btn btn-lg btn-outline-secondary btn-block text-uppercase" type="submit">Sign in</button>
+                                    <hr class="my-4">
+                                </form>
+                                <a href="/register" style="text-decoration: none">
+                                    <button class="btn btn-lg btn-outline-secondary btn-block text-uppercase"><i class="fa-sign-in mr-2"></i> Register </button>
+                                </a>
+                            </div>
+                       </div>
+                   </div>
+              </div>
+         </div>
+
+
+         <div th:if="${newUser}">
+              <div th:if="${userInfo}" class="alert-primary alert" role="alert">
+              <h4 th:text="${userInfo}"></h4>
+              </div>
+              <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+                  <div class="card card-signin my-5">
+                      <div class="card-body">
+                          <h5 class="card-title text-center">Register</h5>
+                          <form  name="r" th:action="@{/reg}" th:object="${newUser}" method="post">
+                              <div class="form-label-group">
+                                  <input th:field="*{username}" type="text" class="form-control" id="regusername" name="regusername" placeholder="Username" required="true" minlength="4" />
+                                  <hr class="my-4">
+                                  <input type="password"  th:field="*{password}" class="form-control" id="regpassword" name="password" placeholder="Password" required="true" minlength="4" />
+                                  <hr class="my-4">
+                                  <input th:field="*{email}" type="email" class="form-control" id="email" name="email" placeholder="Email address" required="true" minlength="6"/>
+                              </div>
+                              <hr class="my-4">
+                              <button class="btn btn-lg btn-outline-secondary btn-block text-uppercase" type="submit"> Register </button>
+                          </form>
+                       </div>
+                   </div>
+               </div>
+         </div>
+    </div>
+</body>
+</html>

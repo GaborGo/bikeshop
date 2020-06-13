@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:insert="fragments.html :: headerfiles">
+</head>
+
+<body>
+    <header th:insert="fragments.html :: nav"></header><br>
+<div class="container">
+
+    <div class="alert-info" th:if="${activation}">
+        <p th:text="${activation}"></p>
+    </div>
+
+    <div class="alert-info" th:if="${welcome}">
+        <p th:text="${welcome}"></p>
+    </div>
+
+    <div class="jumbotron" th:if="${items}">
+        <h2 class="col-md-3"> Items </h2>
+        <hr>
+        <div class="row">
+            <a class="btn-outline-secondary btn col-sm" href="/admin/newItem" style="font-size: 1.5rem; margin-left: 10%; margin-right: 10%"><i class="fas fa-plus"></i> New Item </a>
+            <a class="btn-outline-secondary btn col-sm" href="/admin/users" style="font-size: 1.5rem; margin-left: 10%; margin-right: 10%" > <i class="fas fa-users"></i> Users </a>
+        </div>
+        <hr>
+        <br>
+        <div class="row">
+            <form class="form-inline col" th:action="@{/admin/searchItems}">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input  id="query" class="form-control" placeholder="Search Items..." th:name="query" th:value="${query}" type="text" minlength="4">
+                </div>
+            </form>
+            <form class="form-inline col" th:action="@{/admin/sort}">
+                <div class="input-group input-group-prepend">
+                    <span class="input-group-text" id="basic-addon2"><strong>Sort by:</strong></span>
+                    <select class="form-control " id="field" name="field" onchange="this.form.submit()">
+                        <option th:selected="${field == 'name'}" value="name">Name</option>
+                        <option th:selected="${field == 'brand'}" value="brand">Brand</option>
+                        <option th:selected="${field == 'category'}" value="category">Category</option>
+                        <option th:selected="${field == 'recent'}" value="recent">Most recent</option>
+                        <option th:selected="${field == 'priceAsc'}" value="priceAsc">Price ascending</option>
+                        <option th:selected="${field == 'priceDesc'}" value="priceDesc">Price descending</option>
+                    </select>
+                    <input th:name="query" th:value="${query}" hidden/>
+                </div>
+            </form>
+
+            <table class="table .thead-dark table-striped"  th:object="${items}" >
+                <tr style="height:50px;">
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Brand</th>
+                    <th>Price</th>
+                    <th>No. of images</th>
+                    <th>isActive</th>
+                    <th>Action</th>
+                </tr>
+                <div th:each="item : ${items}">
+                    <tr>
+                        <td th:text="${item.name}"/>
+                        <td th:text="${item.category}"/>
+                        <td th:text="${item.brand}"/>
+                        <td th:text="${item.price}"/>
+                        <td th:text="${item.getImages().size()}"/>
+                        <td th:text="${item.isActive()}"/>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-outline-dark"  href="#" th:href="@{'adminView/'+ ${item.id}}" style="padding: 2px; margin-right: 4px;">Edit</a>
+                                <div th:if="${item.isActive()}">
+                                    <a class="btn btn-outline-danger"  href="#" th:href="@{'activation/'+ ${item.id}}" style="padding: 2px; margin-right: 4px;">Deactivate</a>
+                                </div>
+                                <div th:unless="${item.isActive()}">
+                                    <a class="btn btn-outline-success"  href="#" th:href="@{'activation/'+ ${item.id}}" style="padding: 2px; margin-right: 4px;">Activate</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </div>
+            </table>
+        </div>
+    </div>
+
+
+<!--  USERS   -->
+
+    <div class="jumbotron" th:if="${users}">
+
+        <h2 class="col-md-3"> Users </h2>
+        <hr>
+        <div class="row">
+            <form class="form-inline col-sm" th:action="@{/admin/searchUsers}">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="searchUser"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input  id="userSearch" class="form-control" placeholder="Search Users..." th:name="userSearch" th:value="${userSearch}" type="text" minlength="4" >
+                </div>
+            </form>
+                <a class="btn-outline-secondary btn col-sm" href="/admin/adminhome" style="font-size: 1.5rem; margin-left: 10%; margin-right: 10%"><i class="fas fa-bicycle"></i> Items </a>
+        </div>
+        <hr>
+        <table class="table .thead-dark table-striped"  th:object="${users}" >
+            <tr style="height:50px;">
+                <th>Id</th>
+                <th>Username</th>
+                <th>Total Orders</th>
+                <th>Enabled</th>
+                <th>Action</th>
+            </tr>
+            <div th:each="user : ${users}">
+                <tr>
+                    <td th:text="${user.id}"/>
+                    <td th:text="${user.username}"/>
+                    <td th:text="${user.getCartsOrderedByIdDesc().size()}"/>
+                    <td th:text="${user.isEnabled()}"/>
+                    <td>
+                        <div class="btn-group">
+                            <a class="btn btn-outline-dark"  href="#" th:href="@{'../../admin/adminUser/'+ ${user.id}}" style="padding: 2px; margin-right: 4px;"> Details </a>
+                            <div th:if="${user.isEnabled()}">
+                                <a class="btn btn-outline-danger"  href="#" th:href="@{'../../admin/enable/'+ ${user.id}}" style="padding: 2px; margin-right: 4px;"> Disable </a>
+                            </div>
+                            <div th:unless="${user.isEnabled()}">
+                                <a class="btn btn-outline-success"  href="#" th:href="@{'../../admin/enable/'+ ${user.id}}" style="padding: 2px; margin-right: 4px;"> Enable </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </div>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

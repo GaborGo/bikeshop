@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:content="http://www.w3.org/1999/xhtml">
+<head
+        th:insert="fragments.html :: headerfiles">
+</head>
+<body>
+   <header th:insert="fragments.html :: nav"></header>
+
+   <div class="container jumbotron">
+       <div th:if="${cart.calcNumberOfItems()==0}">
+           <h1>Cart is empty...</h1><br>
+       </div>
+       <h1><i class="fas fa-shopping-cart" style="color: #6c757d"></i></h1>
+       <br>
+       <table class="table .thead-dark table-striped" style="width: 100%;" th:object="${cart}" >
+           <tr style="height:50px;">
+               <th>Item</th>
+               <th>Img</th>
+               <th>Quantity</th>
+               <th>Brand</th>
+               <th>Price</th>
+               <th>Action</th>
+           </tr>
+           <div th:each="cartItem : ${cart.getCartItems()}">
+               <tr>
+                   <td th:text="${cartItem.getItem().name}"></td>
+                   <div th:unless="${cartItem.getItem().imagesPaths().isEmpty()}">
+                       <td>
+                           <a th:href="@{'item/'+${cartItem.getItem().getId()}}">
+                               <img th:src="${cartItem.getItem().imagesPaths().get(0)}" style="max-height: 50px;">
+                           </a>
+                       </td>
+                   </div>
+                   <div th:if="${cartItem.getItem().imagesPaths().isEmpty()}">
+                       <td>
+                           <a th:href="@{'item/'+${cartItem.getItem().getId()}}">
+                               <img src="images/profile.png" style="max-height: 50px">
+                           </a>
+                       </td>
+                   </div>
+                   <td th:text="${cartItem.quantity}"></td>
+                   <td th:text="${cartItem.getItem().brand}"></td>
+                   <td th:text="${cartItem.getItem().price}"></td>
+                   <td>
+                       <div style="padding: 2px">
+                           <a class="btn btn-outline-dark"  href="#" th:href="@{'addQuantity/'+ ${cartItem.id}}" STYLE="padding: 2px;">Add </a>
+                           <a class="btn btn-outline-dark"  href="#" th:href="@{'decreaseQuantity/'+ ${cartItem.id}}" STYLE="padding: 2px;">Remove</a>
+                       </div>
+                   </td>
+               </tr>
+           </div>
+           <hr>
+           <tr class="table-info" style="height:50px;">
+               <td>Number of items: </td>
+               <td th:text="${cart.calcNumberOfItems()}"></td>
+               <td>Cart value: </td>
+               <td> <strong> <h5 th:text="${cart.calcCartPrice()}"> </h5> </strong> </td>
+               <div th:if="${cart.calcCartPrice()>0}">
+                   <td>
+                       <a class="btn btn-outline-dark"  href="#" th:href="@{'order/'+ ${cart.id}}" STYLE="padding: 2px;">Checkout</a>
+                   </td>
+               </div>
+               <div th:if="${cart.calcCartPrice()==0}">
+                   <td>
+                       <a class="btn btn-outline-dark"  href="#" th:href="@{~/}" STYLE="padding: 2px;">Find items!</a>
+                   </td>
+               </div>
+           </tr>
+       </table>
+   </div>
+
+   <div th:insert="fragments :: footer"/>
+</body>
+</html>

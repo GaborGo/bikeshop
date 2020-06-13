@@ -1,0 +1,6 @@
+insert into ShoppingCart ( price, user_id, items) values (200,1, )
+insert into User ( username, password, roles, shoppingCart ) values ('user', 'pass', 'USER', null);
+insert into Item ( name, price, description, picByte, category) values ('testItem', 200, 'first Item', null, 'testCategroy');
+
+
+float price, User user, List<Item> items

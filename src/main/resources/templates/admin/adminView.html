@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:insert="fragments.html :: headerfiles">
+</head>
+
+<body>
+<header th:insert="fragments.html :: nav"></header><br>
+
+<div class="container">
+
+    <div class="alert-info" th:if="${message}">
+        <h4 th:text="${message}"></h4>
+    </div>
+
+    <div th:unless="${user}" class="jumbotron" th:object="${item}">
+        <h1 class="display-4" th:text="${item.name}">Hello, world!</h1>
+        <table class="table .thead-dark table-striped"  th:object="${item}">
+            <tr style="height:50px;">
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+            <tr>
+                <td th:text="${item.name}"/>
+                <td th:text="${item.category}"/>
+                <td th:text="${item.brand}"/>
+                <td th:text="${item.price}"/>
+                <td>
+                    <div class="btn-group">
+                        <div th:if="${item.isActive()}">
+                            <a class="btn btn-outline-danger"  href="#" th:href="@{'../activation/'+ ${item.id}}" style="padding: 2px; margin-right: 4px;">Deactivate</a>
+                        </div>
+                        <div th:unless="${item.isActive()}">
+                            <a class="btn btn-outline-success"  href="#" th:href="@{'../activation/'+ ${item.id}}" style="padding: 2px; margin-right: 4px;">Activate</a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <form th:action="@{/admin/updateItem/}">
+                <tr>
+                    <td>
+                        <input type="text" th:field="${item.name}" th:name="name">
+                        <input th:name="id" th:value="${item.id}" hidden>
+                    </td>
+                    <td>
+                        <input type="text" th:field="${item.category}" th:name="category">
+                    </td>
+                    <td>
+                        <input type="text" th:field="${item.brand}" th:name="brand">
+                    </td>
+                    <td>
+                        <input type="number" th:field="${item.price}" th:name="price">
+                    </td>
+                </tr>
+                <tr>
+                    <th> Description: </th>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <textarea th:field="${item.description}" style="width: 90%; height: 100px;"></textarea>
+                    </td>
+                    <td>
+                        <input class="btn-outline-danger" type="submit" value="Update">
+                    </td>
+                </tr>
+            </form>
+        </table>
+
+        <hr class="my-4">
+        <div class="row mx-md-n5 align-items-center">
+            <div th:unless="${item.images.isEmpty()}" th:each="image : ${item.imagesPaths()}" style="width: 30%; height: 30%; margin: 4px">
+                <div class="col px-md-5">
+                    <a target="_blank" th:href="${image}">
+                        <img class="img-thumbnail" th:src="${image}" alt="item" src="images/profile.png">
+                    </a>
+                    <form th:action="@{/admin/deleteImage}">
+                        <input class="btn-outline-danger" th:name="imagePath" th:value="${image}" hidden/>
+                        <input class="btn-outline-danger" th:name="itemId" th:value="${item.id}" hidden/>
+                        <input type="submit" class="btn-outline-danger" value="Delete">
+                    </form>
+                </div>
+            </div>
+            <form method="POST" th:action="@{~/admin/upload}" enctype="multipart/form-data">
+                <input type="file" name="file" /><br/><br/>
+                <input type="hidden" id="id" name="id" th:field="${item.id}">
+                <input type="submit" value="Upload" />
+            </form>
+        </div>
+    </div>
+
+<!--    USER   -->
+
+    <div class="jumbotron" th:if="${user}" th:object="${user}">
+        <table class="table .thead-dark table-striped">
+            <h2 th:text="${user.username}"></h2>
+            <hr>
+            <tr style="height:50px;">
+                <th>Id</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Total orders</th>
+                <th>Last order</th>
+            </tr>
+            <tr>
+                <td th:text="${user.id}"/>
+                <td th:text="${user.username}"/>
+                <td th:text="${user.email}"/>
+                <td th:text="${user.getSumOfTotalOrders()}"/>
+                <div th:unless="${user.getCartsOrderedByIdDesc().isEmpty()}">
+                    <td th:text="${user.getCartsOrderedByIdDesc().get(0).date}"/>
+                </div>
+            </tr>
+        </table>
+        <hr>
+
+        <h2> Orders </h2>
+        <table class="table .thead-dark table-striped" th:each="order : ${orders}">
+            <tr style="height:50px;">
+                <th>Order id</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Value</th>
+                <th>#</th>
+            </tr>
+            <tr>
+                <td th:text="${order.id}"/>
+                <td th:text="${order.date}"/>
+                <td th:text="${order.getCartItems().size()}"/>
+                <td th:text="${order.price}"/>
+                <td>
+                    <button id="show" class="btn-sm btn-outline-secondary" th:onclick="|myFunction(${order.id})|" onclick="myFunction()"> Details </button>
+                </td>
+            </tr>
+            <table class="table table-dark table-responsive-md" th:id="${order.id}" style="display: none;">
+                <tr>
+                    <th> Id</th>
+                    <th> Name </th>
+                    <th> Brand </th>
+                    <th> Quantity </th>
+                    <th> Active item </th>
+                    <th> Price/Unit </th>
+                </tr>
+                <tr th:each="cartItem : ${order.getCartItems()}">
+                    <td th:text="${cartItem.getItem().id}"></td>
+                    <td th:text="${cartItem.getItem().name}"></td>
+                    <td th:text="${cartItem.getItem().brand}"></td>
+                    <td th:text="${cartItem.quantity}"></td>
+                    <td th:text="${cartItem.getItem().isActive()}"></td>
+                    <td th:text="${cartItem.getItem().price}"></td>
+                </tr>
+            </table>
+        </table>
+    </div>
+
+</div>
+<script>
+    function myFunction(id) {
+        let x = document.getElementById(id);
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>

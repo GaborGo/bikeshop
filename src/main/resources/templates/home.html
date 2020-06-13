@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:content="http://www.w3.org/1999/xhtml">
+<head
+        th:insert="fragments.html :: headerfiles">
+</head>
+<body>
+    <header th:insert="fragments.html :: nav"></header>
+
+    <div class="container">
+        <div th:if="${checkoutSuccess}" class="alert alert-secondary" role="alert">
+            <h5 class="alert-heading"><i class="fas fa-shopping-cart"></i> Order received!</h5><br>
+            <h6 th:text="'Number of items: '+${checkoutSuccess2}"></h6>
+            <strong><h5 th:text="'Total value: '+${checkoutSuccess}"></h5></strong>
+            <hr>
+            <h5 class="mb-0">Thank you for choosing BikeShop!</h5>
+        </div>
+    </div>
+    <div class="container jumbotron">
+
+        <div th:if="${welcome}" class="alert-secondary alert" role="alert">
+            <h3 th:text="${welcome}"></h3>
+        </div>
+
+        <form th:action="@{/sort}">
+                 <div class="form-group row">
+                     <label for="field" class="col-sm-2 col-form-label"><h5>Order by:</h5> </label>
+                     <select class="form-control col-sm-3" id="field" name="field" onchange="this.form.submit()">
+                         <option th:selected="${field == 'name'}" value="name">Name</option>
+                         <option th:selected="${field == 'brand'}" value="brand">Brand</option>
+                         <option th:selected="${field == 'category'}" value="category">Category</option>
+                         <option th:selected="${field == 'recent'}" value="recent">Most recent</option>
+                         <option th:selected="${field == 'priceAsc'}" value="priceAsc">Price ascending</option>
+                         <option th:selected="${field == 'priceDesc'}" value="priceDesc">Price descending</option>
+                     </select>
+                     <input th:name="query" th:value="${query}" hidden/>
+                 </div>
+        </form>
+        <hr>
+        <div th:if="${items.isEmpty()}" class="alert-info">
+            <h3>No results matching the search criteria found...</h3>
+        </div>
+        <div class="row mx-md-n5">
+            <div class="card" style="width: 20rem; margin: 22px;" th:each="item : ${items}">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal" th:text="${item.name}">Pro</h4>
+                </div>
+                <div th:unless="${item.getImages().isEmpty()}">
+                    <a th:id="'a'+${item.id}" th:onclick="|viewFunction(${item.id})|" style="cursor: pointer">
+                        <img th:src="${item.getImages().get(0).getDecodedImgPath()}" src="images/profile.png" class="card-img-top"  style="width: 100%; height: 15vw; object-fit: cover;">
+                    </a>
+                </div>
+                <div th:if="${item.getImages().isEmpty()}">
+                    <img src="images/profile.png" alt="Item_Image" style=" width: 100%; height: 15vw;object-fit: cover;">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${item.brand}">Card title</h5>
+                    <p class="card-text" th:text="${item.category}"></p>
+                </div>
+                <div class="card-footer">
+                    <a href="#" th:href="@{'item/'+${item.id}}" class="btn btn-outline-dark">Details</a>
+                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Add to cart">
+                        <a class="btn btn-outline-dark" href="#" th:href="@{'item/addToCart/'+${item.id}}" style="pointer-events: visibleStroke;" type="button">
+                            <i class="fas fa-shopping-cart"></i>
+                        </a>
+                    </span>
+                </div>
+                <div class="modal fade" role="dialog" th:id="${item.id}"  th:onclick="|closeFunction(${item.id})|" style="display: none; opacity: 100%; padding-top: 10%" >
+                    <div class="modal-dialog modal-lg modal-dialog-centered" tabindex="-1" aria-hidden="true">
+                        <div class="modal-content" style="position: absolute; width: auto">
+                                <span class="close" th:onclick="|closeFunction(${item.id})|"  onclick="">&times;</span>
+                            <div class="modal-body">
+                                <div th:if="${item.images.isEmpty()}">
+                                    <img src="images/profile.png">
+                                </div>
+                                <div th:unless="${item.images.isEmpty()}">
+                                    <img th:src="${item.images.get(0).getDecodedImgPath()}" style="height:100%;max-height:400px">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div th:insert="fragments :: footer"/>
+
+<script>
+    function closeFunction(id) {
+        let modal = document.getElementById(id);
+        if( modal.style.display === "block")
+        modal.style.display = "none";
+    }
+
+    function viewFunction(id) {
+        let modal = document.getElementById(id);
+        if ( modal.style.display==="none" )
+            modal.style.display = "block";
+    }
+</script>
+</body>
+</html>

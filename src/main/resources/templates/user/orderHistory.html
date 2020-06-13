@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head
+        th:insert="fragments.html :: headerfiles">
+</head>
+<body>
+    <header th:insert="fragments.html :: nav"></header>
+    <br>
+    <div class="container jumbotron">
+        <div th:if="${noOrdersYet}">
+            <h2 class="jumbotron" th:text="${noOrdersYet}">No orders completed yet..</h2><br>
+        </div>
+        <div th:if="${carts}">
+            <h1><i class="fas fa-shopping-cart" style="color: #6c757d"></i></h1>
+                <br>
+            <table class="table .thead-dark table-striped" style="width: 100%;" th:object="${carts}" >
+                <tr style="height:50px;">
+                    <th>Date</th>
+                    <th>No. of items</th>
+                    <th>Completed</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+                <div th:each="cart : ${carts}">
+                    <tr>
+                        <td th:text="${#dates.format(cart.date, 'dd-MMM-yyyy HH:MM')}"></td>
+                        <td th:text="${cart.calcNumberOfItems()}"></td>
+                        <td th:text="${cart.completed}"></td>
+                        <td th:text="${cart.price}"></td>
+                        <td>
+                            <div style="padding: 2px">
+                                <a th:id="'b'+${cart.id}" class="btn-outline-secondary btn col-sm" th:onclick="|expandOrder('b'+ ${cart.id},${cart.id})|">More</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:id="${cart.id}" style="display: none">
+                        <td colspan="5">
+                            <table class="table table-striped table-dark" style="background-color: #212529">
+                                <tr style="height:50px;">
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Brand</th>
+                                    <th>Price</th>
+                                    <th>Action</th>
+                                </tr>
+                                <div th:each="cartItem : ${cart.getCartItems()}">
+                                    <tr>
+                                        <td th:text="${cartItem.getItem().name}"></td>
+                                        <td th:text="${cartItem.quantity}"></td>
+                                        <td th:text="${cartItem.getItem().brand}"></td>
+                                        <td th:text="${cartItem.getItem().price}"></td>
+                                        <td>
+                                            <div style="padding: 2px">
+                                                <a class="btn btn-secondary"  href="#" th:href="@{'../../item/addToCart/'+ ${cartItem.getItem().id}}" STYLE="padding: 2px;">Add to cart</a>
+                                                <a class="btn btn-secondary"  href="#" th:href="@{'../../item/'+ ${cartItem.getItem().id}}" STYLE="padding: 2px;">View item</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </div>
+                                <tr style="height:50px;">
+                                    <td>Number of items: </td>
+                                    <td th:text="${cart.calcNumberOfItems()}"></td>
+                                    <td>Cart value: </td>
+                                    <td> <strong> <h5 th:text="${cart.getPrice()}"> </h5> </strong> </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </div>
+            </table>
+        </div>
+
+
+        <div th:if="${order}">
+            <table class="table .thead-dark table-striped" style="width: 100%;" th:object="${order}" >
+                <tr style="height:50px;">
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Brand</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+                <div th:each="cartItem : ${order.getCartItems()}">
+                    <tr>
+                        <td th:text="${cartItem.getItem().name}"></td>
+                        <td th:text="${cartItem.quantity}"></td>
+                        <td th:text="${cartItem.getItem().brand}"></td>
+                        <td th:text="${cartItem.getItem().price}"></td>
+                        <td>
+                            <div style="padding: 2px">
+                                <a class="btn btn-outline-dark"  href="#" th:href="@{'../../item/addToCart/'+ ${cartItem.getItem().id}}" STYLE="padding: 2px;">Add to cart</a>
+                                <a class="btn btn-outline-dark"  href="#" th:href="@{'../../item/'+ ${cartItem.getItem().id}}" STYLE="padding: 2px;">View item</a>
+                            </div>
+                        </td>
+                    </tr>
+                </div>
+                <tr class="table-info" style="height:50px;">
+                    <td>Number of items: </td>
+                    <td th:text="${order.calcNumberOfItems()}"></td>
+                    <td>Cart value: </td>
+                    <td> <strong> <h5 th:text="${order.getPrice()}"> </h5> </strong> </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+    <div th:insert="fragments :: footer"/>
+<script>
+    function expandOrder(butId,id) {
+        let btn = document.getElementById(butId);
+        let expand = document.getElementById(id);
+        if (expand.style.display === "none") {
+            expand.style.display = "";
+            btn.innerHTML = "Less"
+        } else {
+            expand.style.display = "none";
+            btn.innerHTML = "More";
+        }
+    }
+</script>
+
+</body>
+</html>

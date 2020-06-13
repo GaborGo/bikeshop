@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:insert="fragments.html :: headerfiles">
+</head>
+
+<body>
+<header th:insert="fragments.html :: nav"></header><br>
+
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4"><i class="fas fa-bicycle"></i>  New Item </h1>
+        <hr>
+        <table class="table .thead-dark table-striped"  th:object="${item}">
+            <tr style="height:50px;">
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Price</th>
+            </tr>
+            <form th:action="@{/admin/newItem/}" method="post">
+                <tr>
+
+                    <td>
+                        <input type="text" th:field="*{name}" required="true" minlength="4">
+                    </td>
+                    <td>
+                        <input type="text" th:field="*{category}" th:name="category" required="true" minlength="3">
+                    </td>
+                    <td>
+                        <input type="text" th:field="*{brand}" th:name="brand" required="true" minlength="3">
+                    </td>
+                    <td>
+                        <input type="number" th:field="*{price}" th:name="price" required="true">
+                    </td>
+                </tr>
+                <tr>
+                    <th> Description: </th>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <textarea th:field="*{description}" required="true" minlength="4" style="width: 90%; height: 100px;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="btn btn-outline-secondary" type="submit" value="Save Item">
+                    </td>
+                </tr>
+            </form>
+        </table>
+    </div>
+</div>
+</body>
+</html>
